@@ -1,3 +1,4 @@
+from datetime import datetime
 import discord
 from discord.ext import commands
 
@@ -9,9 +10,14 @@ class Hello(commands.Cog):
   async def hello(self, ctx):
     await ctx.respond("Hey!\nI'm Neo")
   
-  @commands.Cog.listener()
-  async def on_member_join(self, member):
-    await member.send('Welcome to NeoFlux')
+  @commands.slash_command()
+  async def status(self, ctx):
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    await ctx.respond(f"My name is Neo, as of {current_time}")
+  
+  @commands.slash_command()
+  async def ping(self, ctx):
+    await ctx.respond(f"Pong 🏓\nLatency: {self.bot.latency*1000}ms")
 
 def setup(bot):
   bot.add_cog(Hello(bot))
