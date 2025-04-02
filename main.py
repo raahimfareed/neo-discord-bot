@@ -4,7 +4,8 @@ import discord
 from dotenv import load_dotenv
 
 cogs_list = [
-  'hello'
+  'hello',
+  'moderation'
 ]
 
 
@@ -21,6 +22,10 @@ def main():
   @bot.event
   async def on_ready():
     print(f"{bot.user} is ready and online")
+
+  @bot.event
+  async def on_member_join(member):
+    await member.send('Welcome to NeoFlux')
 
   
   for cog in cogs_list:
