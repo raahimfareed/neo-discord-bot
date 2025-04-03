@@ -1,7 +1,7 @@
 import os
 import discord
-from discord import Option
-from datetime import timedelta
+from discord import Option, ApplicationContext
+from datetime import datetime, timedelta
 from discord.ext import commands
 from discord.ext.commands import MissingPermissions
 
@@ -9,19 +9,19 @@ from utils.embed import send_log
 
 
 class Moderation(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: discord.Bot):
         self.bot = bot
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        print(message,message.content)
+        print(message, message.content)
 
   
     @commands.slash_command(name='mute', description='Mutes/timeouts a member')
     @commands.has_permissions(moderate_members=True)
     async def mute(
         self, 
-        ctx, 
+        ctx: ApplicationContext, 
         member: Option(discord.Member, required=True),
         reason: Option(str, required=False),
         days: Option(int, max_value=28, required=False),
@@ -67,17 +67,9 @@ class Moderation(commands.Cog):
             ('Timeout Duration', duration),
         ])
 
-
-    @mute.error
-    async def muteerror(self, ctx, error):
-        if isinstance(error, MissingPermissions):
-            return await ctx.respond("You can't do this! You need to have moderate member permissions")
-
-        raise error
-
     @commands.slash_command(name='unmute', description='Umutes member')
     @commands.has_permissions(moderate_members=True)
-    async def unmute(self, ctx, member: Option(discord.Member, required=True), reason: Option(str, required=False), log: Option(bool, required=False)):
+    async def unmute(self, ctx: ApplicationContext, member: Option(discord.Member, required=True), reason: Option(str, required=False), log: Option(bool, required=False)):
         await member.remove_timeout()
         timeout_response = f"<@{member.id}> unmuted"
         if reason is not None:
@@ -93,18 +85,11 @@ class Moderation(commands.Cog):
             ('Reason', reason),
         ])
 
-    @unmute.error
-    async def unmuteerror(self, ctx, error):
-        if isinstance(error, MissingPermissions):
-            return await ctx.respond("You can't do this! You need to have moderate member permissions")
-
-        raise error
-
     @commands.slash_command(name='kick', description='Kicks a member')
     @commands.has_permissions(kick_members=True)
     async def kick(
         self, 
-        ctx,
+        ctx: ApplicationContext,
         member: Option(discord.Member, description="Who do you want to kick?", required=True),
         reason: Option(str, required=False),
         log: Option(bool, description="Display in logs?", required=False)
@@ -131,18 +116,11 @@ class Moderation(commands.Cog):
             ('Reason', reason),
         ])
 
-    @kick.error
-    async def kickerror(self, ctx, error):
-        if isinstance(error, MissingPermissions):
-            return await ctx.respond("You don't have permissions to kick members! :no_entry:")
-
-        raise error
-
     @commands.slash_command(name='ban', description='Bans members')
     @commands.has_permissions(ban_members=True)
     async def ban(
         self,
-        ctx,
+        ctx: ApplicationContext,
         member: Option(discord.Member, description="Who do you want to kick?", required=True),
         reason: Option(str, description="Why?", required=False),
         log: Option(bool, description="Display in logs?", required=False)
@@ -169,12 +147,43 @@ class Moderation(commands.Cog):
             ('Reason', reason),
         ])
 
-    @ban.error
-    async def banerror(self, ctx, error):
-        if isinstance(error, MissingPermissions):
-            return await ctx.respond("You don't have permissions to ban members! :no_entry:")
+    @commands.slash_command(name='bans', description='List of all bans')
+    @commands.has_permissions(ban_members=True)
+    async def bans(
+        self,
+        ctx: ApplicationContext
+    ):
+        await ctx.defer()
+        bans = await ctx.guild.bans().flatten()
 
-        raise error
+        embed = discord.Embed(title=f"List of Bans in {ctx.guild}", timestamp=datetime.now(), color=discord.Colour.red())
+
+        for entry in bans:
+            if len(embed.fields) > 25:
+                break
+
+            if len(embed) > 5900:
+                embed.add_field(name='Too many bans to list', value='')
+                continue
+
+            embed.add_field(name="Ban", value=f"Username: {entry.user.name}\nReason: {entry.reason}\nUser ID: {entry.user.id}\nIs Bot: {entry.user.bot}", inline=True)
+
+        await ctx.respond(embed=embed)
+
+    @commands.slash_command(name='unban', description='Unbans members')
+    @commands.has_permissions(ban_members=True)
+    async def unban(
+        self,
+        ctx: ApplicationContext,
+        member_id: Option(str, description="ID of the member you want to unban", required=True)
+    ):
+        await ctx.defer()
+        member = await self.bot.get_or_fetch_user(member_id)
+        if member is None:
+            return await ctx.respond(f"Member with ID {member_id} doesn't exist in bans")
+
+        await ctx.guild.unban(member)
+        await ctx.respond(f"I've unbanned {member.mention}")
 
 
 def setup(bot):
