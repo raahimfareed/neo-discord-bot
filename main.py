@@ -1,5 +1,8 @@
 import os
 
+from database import db
+from models.Ticket import Ticket
+
 import discord
 from discord.ext.commands import MissingPermissions
 from discord.types import activity
@@ -15,11 +18,16 @@ cogs_list = [
 
 def init() -> discord.Bot:
     load_dotenv()
+
     intents = discord.Intents.default()
     intents.messages = True
     intents.message_content = True
     intents.members = True
     bot = discord.Bot(intents=intents)
+
+    db.connect()
+    db.create_tables([Ticket], safe=True)
+    db.close()
 
     return bot
 

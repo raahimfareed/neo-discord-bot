@@ -1,7 +1,10 @@
+from datetime import datetime
 import discord
 from discord import Option, ApplicationContext
 from discord.ext import commands
 from discord.ui import InputText, Modal
+
+from models.Ticket import Ticket
 
 
 class Ticketing(discord.Cog):
@@ -13,6 +16,26 @@ class Ticketing(discord.Cog):
         modal = TicketModal()
         await ctx.interaction.response.send_modal(modal)
 
+    @commands.slash_command(name='get_tickets', description='Get Tickets')
+    async def get_tickets(self, ctx: ApplicationContext):
+        user_id = ctx.author.id
+
+        embed = discord.Embed(title=f"List of Tickets :tickets:", timestamp=datetime.now(), color=discord.Color.fuchsia())
+
+        tickets = Ticket.select().where(Ticket.user_id == user_id)
+
+        for ticket in tickets:
+            if len(embed.fields) > 25:
+                break
+
+            if len(embed) > 5900:
+                embed.add_field(name='Too many tickets to list', value='')
+                continue
+
+            embed.add_field(name="Ticket", value=f"ID: {ticket.id}\nSubject: {ticket.subject}\nDescription: {ticket.description}\nResolution: {'Resolved' if ticket.resolution is True else 'Open'}\nTicket Date: {ticket.created_at}", inline=True)
+        await ctx.respond(embed=embed)
+
+
 class TicketModal(Modal):
     def __init__(self) -> None:
         super().__init__(title="Create Ticket")
@@ -20,7 +43,12 @@ class TicketModal(Modal):
         self.add_item(InputText(label="Description", placeholder="Explain the query", style=discord.InputTextStyle.long))
 
     async def callback(self, interaction: discord.Interaction):
-        embed = discord.Embed(title="Ticket Submitted", color=discord.Color.blurple(), description="One of the representative will get back to you shortly!")
+        embed = discord.Embed(title="Ticket Submitted :white_check_mark:", color=discord.Color.blurple(), description="One of the representative will get back to you shortly!")
+        Ticket.create(
+            subject=self.children[0].value,
+            description=self.children[1].value,
+            user_id=interaction.user.id
+        )
         await interaction.response.send_message(embed=embed)
 
 
