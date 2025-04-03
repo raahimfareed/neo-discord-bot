@@ -9,14 +9,19 @@ cogs_list = [
 ]
 
 
-def init():
+def init() -> discord.Bot:
     load_dotenv()
+    intents = discord.Intents.default()
+    intents.messages = True
+    intents.message_content = True
+    intents.members = True
+    bot = discord.Bot(intents=intents)
+
+    return bot
 
 def main():
-    init()
-
+    bot = init()
     token = str(os.getenv("TOKEN"))
-    bot = discord.Bot()
 
 
     @bot.event
