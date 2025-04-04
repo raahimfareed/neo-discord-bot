@@ -45,13 +45,12 @@ class TicketModal(Modal):
         self.add_item(InputText(label="Description", placeholder="Explain the query", style=discord.InputTextStyle.long))
 
     async def callback(self, interaction: discord.Interaction):
-        # embed = discord.Embed(title="Ticket Submitted :white_check_mark:", color=discord.Color.blurple(), description="One of the representative will get back to you shortly!")
         Ticket.create(
             subject=self.children[0].value,
             description=self.children[1].value,
             user_id=interaction.user.id
         )
-        await interaction.response.send_message("Ticket Submitted :white_check_mark:", ephemeral=True)
+        await interaction.response.send_message("Ticket Submitted :white_check_mark:", ephemeral=interaction.guild is not None)
 
 
 def setup(bot: discord.Bot):
