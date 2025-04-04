@@ -14,10 +14,12 @@ class Ticketing(discord.Cog):
     @commands.slash_command(name='create_ticket', description='Create a support ticket')
     async def create_ticket(self, ctx: ApplicationContext):
         modal = TicketModal()
-        await ctx.interaction.response.send_modal(modal)
+        return await ctx.interaction.response.send_modal(modal)
 
     @commands.slash_command(name='get_tickets', description='Get Tickets')
     async def get_tickets(self, ctx: ApplicationContext):
+        await ctx.defer(ephemeral=ctx.guild is not None)
+
         user_id = ctx.author.id
 
         embed = discord.Embed(title=f"List of Tickets :tickets:", timestamp=datetime.now(), color=discord.Color.fuchsia())
@@ -33,7 +35,7 @@ class Ticketing(discord.Cog):
                 continue
 
             embed.add_field(name="Ticket", value=f"ID: {ticket.id}\nSubject: {ticket.subject}\nDescription: {ticket.description}\nResolution: {'Resolved' if ticket.resolution is True else 'Open'}\nTicket Date: {ticket.created_at}", inline=True)
-        await ctx.respond(embed=embed)
+        return await ctx.respond(embed=embed, ephemeral=ctx.guild is not None)
 
 
 class TicketModal(Modal):
@@ -43,13 +45,13 @@ class TicketModal(Modal):
         self.add_item(InputText(label="Description", placeholder="Explain the query", style=discord.InputTextStyle.long))
 
     async def callback(self, interaction: discord.Interaction):
-        embed = discord.Embed(title="Ticket Submitted :white_check_mark:", color=discord.Color.blurple(), description="One of the representative will get back to you shortly!")
+        # embed = discord.Embed(title="Ticket Submitted :white_check_mark:", color=discord.Color.blurple(), description="One of the representative will get back to you shortly!")
         Ticket.create(
             subject=self.children[0].value,
             description=self.children[1].value,
             user_id=interaction.user.id
         )
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message("Ticket Submitted :white_check_mark:", ephemeral=True)
 
 
 def setup(bot: discord.Bot):
