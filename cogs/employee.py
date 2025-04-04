@@ -1,3 +1,4 @@
+import os
 import discord
 from discord import ApplicationContext, EmbedProvider, Option, asyncio
 from discord.ext import commands
@@ -8,6 +9,7 @@ class Employee(commands.Cog):
         self.bot = bot
 
     @commands.slash_command(name='apply_leave', description='Apply for a leave')
+    @commands.has_role(int(os.getenv('EMPLOYEE_ROLE_ID') or 0))
     async def apply_leave(
         self,
         ctx: ApplicationContext,

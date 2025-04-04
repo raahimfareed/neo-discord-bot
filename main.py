@@ -1,6 +1,7 @@
 import os
 
 from discord.errors import HTTPException, NotFound
+from discord.ext.commands.errors import MissingAnyRole, MissingRole
 
 from database import db
 from models.Ticket import Ticket
@@ -54,6 +55,9 @@ def main():
     async def on_application_command_error(ctx: discord.ApplicationContext, error):
         if isinstance(error, MissingPermissions):
             return await ctx.respond("You don't have permissions to run this command! :no_entry:", ephemeral=True)
+
+        if isinstance(error, MissingRole) or isinstance(error, MissingAnyRole):
+            return await ctx.respond("You don't have the role required for this command! :no_entry:", ephemeral=True)
 
         if isinstance(error, HTTPException):
             return await ctx.respond("An error with network occurred! Please try again :face_holding_back_tears:", ephemeral=True)
