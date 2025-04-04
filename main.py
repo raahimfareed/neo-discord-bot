@@ -7,7 +7,6 @@ from models.Ticket import Ticket
 
 import discord
 from discord.ext.commands import MissingPermissions
-from discord.types import activity
 from dotenv import load_dotenv
 
 cogs_list = [
@@ -15,7 +14,8 @@ cogs_list = [
     'moderation',
     'meeting',
     'ticketing',
-    'event'
+    'event',
+    'employee'
 ]
 
 
