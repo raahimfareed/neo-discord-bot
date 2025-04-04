@@ -1,5 +1,7 @@
 import os
 
+from discord.errors import HTTPException, NotFound
+
 from database import db
 from models.Ticket import Ticket
 
@@ -49,7 +51,14 @@ def main():
     @bot.event
     async def on_application_command_error(ctx: discord.ApplicationContext, error):
         if isinstance(error, MissingPermissions):
-            await ctx.respond("You don't have permissions to run this command! :no_entry:")
+            return await ctx.respond("You don't have permissions to run this command! :no_entry:", ephemeral=True)
+
+        if isinstance(error, HTTPException):
+            return await ctx.respond("An error with network occurred! Please try again :face_holding_back_tears:", ephemeral=True)
+
+        if isinstance(error, NotFound):
+            return await ctx.respond("An error with network occurred! Please try again :face_holding_back_tears:", ephemeral=True)
+
         raise error
 
     for cog in cogs_list:
