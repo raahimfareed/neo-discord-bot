@@ -27,6 +27,9 @@ def init() -> discord.Bot:
     intents = discord.Intents.default()
     intents.messages = True
     intents.message_content = True
+    intents.presences = True
+    intents.guilds = True
+    intents.voice_states = True
     intents.members = True
     bot = discord.Bot(intents=intents)
 
