@@ -3,7 +3,6 @@ import discord
 from discord import Option, ApplicationContext
 from datetime import datetime, timedelta
 from discord.ext import commands
-from discord.ext.commands import MissingPermissions
 
 from utils.embed import send_log
 
@@ -14,7 +13,7 @@ class Moderation(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        print(message, message.content)
+        pass
 
   
     @commands.slash_command(name='mute', description='Mutes/timeouts a member')
