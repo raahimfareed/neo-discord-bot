@@ -3,7 +3,6 @@ import discord
 from discord import Option, ApplicationContext
 from datetime import datetime, timedelta
 from discord.ext import commands
-from discord.ext.commands import MissingPermissions
 
 from utils.embed import send_log
 
@@ -14,7 +13,7 @@ class Moderation(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        print(message, message.content)
+        pass
 
   
     @commands.slash_command(name='mute', description='Mutes/timeouts a member')
@@ -184,6 +183,57 @@ class Moderation(commands.Cog):
 
         await ctx.guild.unban(member)
         await ctx.respond(f"I've unbanned {member.mention}")
+
+    # @commands.slash_command(name='scan', description='Scans and checks status of a user')
+    # @commands.has_role(int(os.getenv('ADMIN_ROLE_ID') or 0))
+    # async def scan(
+    #     self,
+    #     ctx: ApplicationContext,
+    #     member: Option(discord.Member, required=True)
+    # ):
+    #     await ctx.defer()
+    #
+    #     found = None
+    #     status = "⚫ Offline"
+    #     if member.status == discord.Status.online:
+    #         status = "🟢 Online"
+    #     if member.status == discord.Status.idle:
+    #         status = ":crescent_moon: Idle"
+    #     if member.status == discord.Status.invisible:
+    #         status = "⚫ Invisible"
+    #     if member.status == discord.Status.dnd:
+    #         status = ":no_entry: Do Not Disturb"
+    #     activities = []
+    #
+    #     print(member.activities)
+    #     print(member.activity)
+    #
+    #     for activity in member.activities:
+    #         if isinstance(activity, discord.Game):
+    #             activities.append(f"🎮 Playing {activity.name}")
+    #         elif isinstance(activity, discord.Streaming):
+    #             activities.append(f"📺 Streaming {activity.name}")
+    #         elif isinstance(activity, discord.Spotify):
+    #             activities.append(f"🎵 Listening to {activity.title} by {activity.artist}")
+    #         elif isinstance(activity, discord.CustomActivity):
+    #             activities.append(f"💬 Custom Status: {activity.name}")
+    #
+    #     for guild in self.bot.guilds:
+    #         member = guild.get_member(member.id)
+    #         if member and member.voice:
+    #             found = member.voice.channel
+    #             break
+    #
+    #     message = status + "\n"
+    #
+    #     if found:
+    #         message += f"User `{member}` is in voice channel: **{found.name}** in **{guild.name}**\n"
+    #     else:
+    #         message += f"User `{member} is not in any voice channel`\n"
+    #     message += "\n".join(activities) if activities else "No activity"
+    #
+    #     await ctx.respond(message)
+
 
 
 def setup(bot):

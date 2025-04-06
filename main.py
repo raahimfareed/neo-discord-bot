@@ -1,11 +1,13 @@
 import os
 
+from discord.errors import HTTPException, NotFound
+from discord.ext.commands.errors import MissingAnyRole, MissingRole
+
 from database import db
 from models.Ticket import Ticket
 
 import discord
 from discord.ext.commands import MissingPermissions
-from discord.types import activity
 from dotenv import load_dotenv
 
 cogs_list = [
@@ -13,6 +15,9 @@ cogs_list = [
     'moderation',
     'meeting',
     'ticketing',
+    'event',
+    'employee',
+    'poll',
     'voice'
 ]
 
@@ -23,6 +28,9 @@ def init() -> discord.Bot:
     intents = discord.Intents.default()
     intents.messages = True
     intents.message_content = True
+    intents.presences = True
+    intents.guilds = True
+    intents.voice_states = True
     intents.members = True
     bot = discord.Bot(intents=intents)
 
@@ -50,7 +58,17 @@ def main():
     @bot.event
     async def on_application_command_error(ctx: discord.ApplicationContext, error):
         if isinstance(error, MissingPermissions):
-            await ctx.respond("You don't have permissions to run this command! :no_entry:")
+            return await ctx.respond("You don't have permissions to run this command! :no_entry:", ephemeral=True)
+
+        if isinstance(error, MissingRole) or isinstance(error, MissingAnyRole):
+            return await ctx.respond("You don't have the role required for this command! :no_entry:", ephemeral=True)
+
+        if isinstance(error, HTTPException):
+            return await ctx.respond("An error with network occurred! Please try again :face_holding_back_tears:", ephemeral=True)
+
+        if isinstance(error, NotFound):
+            return await ctx.respond("An error with network occurred! Please try again :face_holding_back_tears:", ephemeral=True)
+
         raise error
 
     for cog in cogs_list:
