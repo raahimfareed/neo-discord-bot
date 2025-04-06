@@ -12,7 +12,8 @@ cogs_list = [
     'hello',
     'moderation',
     'meeting',
-    'ticketing'
+    'ticketing',
+    'voice'
 ]
 
 
