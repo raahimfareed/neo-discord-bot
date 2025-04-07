@@ -183,7 +183,20 @@ class Moderation(commands.Cog):
 
         await ctx.guild.unban(member)
         await ctx.respond(f"I've unbanned {member.mention}")
+    
+    @commands.slash_command(name='purge', description='Mass delete messages')
+    @commands.has_permissions(manage_messages=True)
+    async def purge(
+        self,
+        ctx: ApplicationContext,
+        amount: Option(int, description="How many messages do you want to delete?", required=True)
+    ):
+        if amount < 1:
+            return await ctx.respond("You can't delete less than 1 message", ephemeral=True)
+        await ctx.channel.purge(limit=amount)
+        await ctx.respond(f"Deleted {amount} messages", ephemeral=True)
 
+    # INFO: Doesn't look like it will follow TOS, keep commented
     # @commands.slash_command(name='scan', description='Scans and checks status of a user')
     # @commands.has_role(int(os.getenv('ADMIN_ROLE_ID') or 0))
     # async def scan(
