@@ -7,7 +7,7 @@ from database import db
 from models.Ticket import Ticket
 
 import discord
-from discord.ext.commands import MissingPermissions
+from discord.ext.commands import MissingPermissions, NoPrivateMessage
 from dotenv import load_dotenv
 
 cogs_list = [
@@ -68,6 +68,9 @@ def main():
 
         if isinstance(error, NotFound):
             return await ctx.respond("An error with network occurred! Please try again :face_holding_back_tears:", ephemeral=True)
+        
+        if isinstance(error, NoPrivateMessage):
+            return await ctx.respond("This command cannot be used in DMs! :no_entry:")
 
         raise error
 
