@@ -12,8 +12,8 @@ class Moderation(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_message(self, message):
-        pass
+    async def on_member_join(self, member: discord.Member):
+        await member.send('Welcome to NeoFlux')
 
   
     @commands.slash_command(name='mute', description='Mutes/timeouts a member')
