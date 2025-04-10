@@ -11,6 +11,7 @@ from discord.ext.commands import MissingPermissions, NoPrivateMessage
 from dotenv import load_dotenv
 
 cogs_list = [
+    'setup',
     'hello',
     'moderation',
     'meeting',
@@ -18,7 +19,8 @@ cogs_list = [
     'event',
     'employee',
     'poll',
-    'voice'
+    'voice',
+    'error_handler'
 ]
 
 
@@ -50,29 +52,6 @@ def main():
         game = discord.Game('with the API')
         await bot.change_presence(activity=game)
         print(f"{bot.user} is ready and online")
-
-    @bot.event
-    async def on_member_join(member):
-        await member.send('Welcome to NeoFlux')
-
-    @bot.event
-    async def on_application_command_error(ctx: discord.ApplicationContext, error):
-        if isinstance(error, MissingPermissions):
-            return await ctx.respond("You don't have permissions to run this command! :no_entry:", ephemeral=True)
-
-        if isinstance(error, MissingRole) or isinstance(error, MissingAnyRole):
-            return await ctx.respond("You don't have the role required for this command! :no_entry:", ephemeral=True)
-
-        if isinstance(error, HTTPException):
-            return await ctx.respond("An error with network occurred! Please try again :face_holding_back_tears:", ephemeral=True)
-
-        if isinstance(error, NotFound):
-            return await ctx.respond("An error with network occurred! Please try again :face_holding_back_tears:", ephemeral=True)
-        
-        if isinstance(error, NoPrivateMessage):
-            return await ctx.respond("This command cannot be used in DMs! :no_entry:")
-
-        raise error
 
     for cog in cogs_list:
         bot.load_extension(f"cogs.{cog}")
